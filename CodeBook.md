@@ -52,7 +52,7 @@ Subject"
 "fBodyBodyGyroJerkMag std"
 
 ### Processing
-Averages have been calculated for measured variable 
+Averages have been calculated for measured variable.  The column names are tidied to explain that the values are averages
 
 ### Rows
 Each row gives the averages for each combination of subject and activity

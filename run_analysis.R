@@ -38,5 +38,7 @@ getAccelerometerData <- function() {
 }
 
 getSetTwo <- function(inputFrame) {
-  returnValue(ddply(inputFrame,.(Subject, Activity),numcolwise(mean)))
+  df <- ddply(inputFrame,.(Subject, Activity),numcolwise(mean))
+  names(df) <- paste(names(df), "Average", sep = ": ")
+  returnValue(df)
 }
