@@ -6,8 +6,10 @@ getAccelerometerData <- function() {
   columns <- read.table("./UCIHARDataset/features.txt")
   
   train.data <- read.table("./UCIHARDataset/train/X_train.txt")
-  colnames(train.data) = columns$V2
+  colnames(train.data) =columns$V2
   interesting.train <- subset(train.data, select=grep("mean..$|std..$", colnames(train.data)))
+  names(interesting.train) <- gsub("-", " ", names(interesting.train))
+  names(interesting.train) <- gsub("\\(\\)", "", names(interesting.train))
   train.activity <- read.table("./UCIHARDataset/train/y_train.txt")  
   colnames(train.activity) = c(activityColumn)
   train.subject <- read.table("./UCIHARDataset/train/subject_train.txt")
@@ -17,6 +19,8 @@ getAccelerometerData <- function() {
   test.data <- read.table("./UCIHARDataset/test/X_test.txt")
   colnames(test.data) = columns$V2
   interesting.test <- subset(test.data, select=grep("mean..$|std..$", colnames(test.data)))
+  names(interesting.test) <- gsub("-", " ", names(interesting.test))
+  names(interesting.test) <- gsub("\\(\\)", "", names(interesting.test))
   test.activity <- read.table("./UCIHARDataset/test/y_test.txt")  
   colnames(test.activity) = c(activityColumn)
   test.subject <- read.table("./UCIHARDataset/test/subject_test.txt")
@@ -33,60 +37,6 @@ getAccelerometerData <- function() {
   returnValue(dF)
 }
 
-getActivityDataFrame <- function(inputFrame) {
-  #Input frame must have Activity column
-  
-  activities <- read.table("./UCIHARDataset/activity_labels.txt", stringsAsFactors=FALSE)
-  
-  dF = data.frame()
-  for(rname in colnames(inputFrame)){
-    if(rname == "Subject"){
-      next
-    }
-    if(rname == "Activity"){
-      next
-    }
-    dRow = vector()
-    for(cname in activities$V2){
-      dRow <- append(dRow, mean(inputFrame[rname][inputFrame$Activity == cname,]))
-    }
-    dF <- rbind(dF, dRow)
-  }
-  row.names(dF) <- colnames(inputFrame)[!(colnames(inputFrame) %in% c("Activity","Subject"))]
-  colnames(dF) <- activities$V2
-  returnValue(dF);
+getSetTwo <- function(inputFrame) {
+  returnValue(ddply(inputFrame,.(Subject, Activity),numcolwise(mean)))
 }
-
-getSubjectDataFrame <- function(inputFrame) {
-  #Input frame must have Subject column
-  
-  subjects <- sort(unique(inputFrame$Subject))
-  
-  dF = data.frame()
-  for(rname in colnames(inputFrame)){
-    if(rname == "Subject"){
-      next
-    }
-    if(rname == "Activity"){
-      next
-    }
-    dRow = vector()
-    for(cname in subjects){
-      dRow <- append(dRow, mean(inputFrame[rname][inputFrame$Subject == cname,]))
-    }
-    dF <- rbind(dF, dRow)
-  }
-  row.names(dF) <- colnames(inputFrame)[!(colnames(inputFrame) %in% c("Activity","Subject"))]
-  colnames(dF) <- subjects
-  returnValue(dF);
-}
-
-getConsolidatedDataSet <- function(inputFrame) {
-  
-  a <- getActivityDataFrame(inputFrame)
-  b <- getSubjectDataFrame(inputFrame)
-  
-  output<-list(a,b)
-  returnValue(output)
-}
-
